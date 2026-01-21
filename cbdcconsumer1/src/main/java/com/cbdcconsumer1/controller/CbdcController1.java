@@ -3,6 +3,8 @@ package com.cbdcconsumer1.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,14 +21,22 @@ import com.cbdcconsumer1.dto.Token;
 @RequestMapping("api/v1/cbdcconsumer")
 public class CbdcController1 {
 	
+	//@Autowired
+//	RestTemplate rTemp;
+	
 	@Autowired
-	RestTemplate rTemp;
+	DiscoveryClient ds;
 	
 	@GetMapping
 	public List<Token> get(){
 		
-		//RestTemplate rTemp = new RestTemplate();
-		List<Token> tt =rTemp.getForObject("http://localhost:10000/api/v1/cbdc", List.class);
+		List<ServiceInstance> ss = ds.getInstances("CBDC");
+		ServiceInstance s1 = ss.get(0);
+		String url = s1.getUri().toString();
+		
+		RestTemplate rTemp = new RestTemplate();
+		
+		List<Token> tt =rTemp.getForObject(url+"/api/v1/cbdc", List.class);
 		
 		return tt;
 		
@@ -35,7 +45,7 @@ public class CbdcController1 {
 	@GetMapping("/{tokenId}")
 	public Token getRecord(@PathVariable("tokenid") long tid){
 		
-		//RestTemplate rTemp = new RestTemplate();
+		RestTemplate rTemp = new RestTemplate();
 		Token tt =rTemp.getForObject("http://localhost:10000/api/v1/cbdc/"+tid, Token.class);
 		
 		return tt;
@@ -44,12 +54,14 @@ public class CbdcController1 {
 	
 	@PostMapping
 	public Token create(@RequestBody Token tt) {
+		RestTemplate rTemp = new RestTemplate();
 		Token tt1 =rTemp.postForObject("http://localhost:10000/api/v1/cbdc", tt, Token.class);
 		return tt1;
 	}
 	
 	@PutMapping("/{tokenId}")
 	public String editRecord(@PathVariable("tokenid") long tid, @RequestBody Token tt){
+		RestTemplate rTemp = new RestTemplate();
 		rTemp.put("http://localhost:10000/api/v1/cbdc/"+tid, tt);
 		return "Token edited";
 	}
@@ -57,6 +69,7 @@ public class CbdcController1 {
 	
 	@DeleteMapping("/{tokenId}")
 	public String deleteRecord(@PathVariable("tokenid") long tid){
+		RestTemplate rTemp = new RestTemplate();
 		rTemp.delete("http://localhost:10000/api/v1/cbdc/"+tid);
 		return "Token deleted";
 	}

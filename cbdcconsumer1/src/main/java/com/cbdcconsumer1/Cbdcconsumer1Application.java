@@ -13,7 +13,7 @@ public class Cbdcconsumer1Application {
 	}
 	
 	
-	@Bean
+//	@Bean
 	public RestTemplate createObject() {
 		return new RestTemplate();
 	}
